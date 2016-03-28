@@ -8,7 +8,7 @@ RUN wget -O /tmp/influxdb_0.11.0-1_armhf.deb https://s3.amazonaws.com/influxdb/i
     dpkg -i /tmp/influxdb_0.11.0-1_armhf.deb && rm /tmp/influxdb_0.11.0-1_armhf.deb
 
 ADD /app /app
-RUN pip install -r /app/requirements.txt
+RUN pip install -U pip && pip install -r /app/requirements.txt
 
 ENV INITSYSTEM on
 CMD ["python", "/app/start.py"]
