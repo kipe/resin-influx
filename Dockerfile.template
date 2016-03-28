@@ -17,7 +17,5 @@ RUN pip install -U pip && pip install -r /app/requirements.txt
 # Change influxdb data to be stored in the persising partition
 RUN sed -i 's|/var/lib/influxdb|/data/influxdb|g' /etc/influxdb/influxdb.conf
 
-# Use init system to start influxdb
-ENV INITSYSTEM on
 # Finally, start our app
-CMD ["python", "/app/start.py"]
+CMD ["bash", "/app/start.sh"]
