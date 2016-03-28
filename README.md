@@ -4,7 +4,8 @@ resin-influx
 A basic example of setting up [influxdb](https://influxdata.com/time-series-platform/influxdb/) running via [resin.io](https://resin.io).
 
 All it does, is write load averages via Python -script to the database.
-This database can then be queried via the built-in webinterface, listening at port 8083.
+This database can then be queried via the built-in webinterface, at `http://<resin-ip>:8083`
+
 
 #### Performance
 Initial performance looks to be ok on Raspberry Pi B+:
