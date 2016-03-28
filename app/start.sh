@@ -1,6 +1,8 @@
 #!/bin/sh
 
+# Make and chown influxdb data directories
 mkdir /data/influxdb
 chown influxdb:influxdb /data/influxdb
-service influxdb start
-python /app/load_logger.py
+
+# Run the application with supervisor
+supervisord -n -c /etc/supervisor/supervisord.conf
