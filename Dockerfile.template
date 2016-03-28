@@ -15,7 +15,7 @@ ADD /app /app
 RUN pip install -U pip && pip install -r /app/requirements.txt
 
 # Change influxdb data to be stored in the persising partition
-RUN mkdir /data/influxdb && sed -i 's|/var/lib/influxdb|/data/influxdb|g' /etc/influxdb/influxdb.conf
+RUN sed -i 's|/var/lib/influxdb|/data/influxdb|g' /etc/influxdb/influxdb.conf
 
 # Use init system to start influxdb
 ENV INITSYSTEM on
