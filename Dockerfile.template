@@ -1,14 +1,23 @@
 FROM resin/%%RESIN_MACHINE_NAME%%-python
 MAINTAINER Kimmo Huoman <kipenroskaposti@gmail.com>
 
+# Install the required stuff
 RUN apt-get update && apt-get install -yq wget python-pip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Install influxdb
 RUN wget -O /tmp/influxdb_0.11.0-1_armhf.deb https://s3.amazonaws.com/influxdb/influxdb_0.11.0-1_armhf.deb && \
     dpkg -i /tmp/influxdb_0.11.0-1_armhf.deb && rm /tmp/influxdb_0.11.0-1_armhf.deb
 
+# Add our app
 ADD /app /app
+# Install the app requirements
 RUN pip install -U pip && pip install -r /app/requirements.txt
 
+# Change influxdb data to be stored in the persising partition
+RUN mkdir /data/influxdb && sed -i 's|/var/lib/influxdb|/data/influxdb|g' /etc/influxdb/influxdb.conf
+
+# Use init system to start influxdb
 ENV INITSYSTEM on
+# Finally, start our app
 CMD ["python", "/app/start.py"]
