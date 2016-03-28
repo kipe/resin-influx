@@ -1,7 +1,7 @@
 resin-influx
 ============
 
-A basic example of setting up [influxdb](https://influxdata.com/time-series-platform/influxdb/) running via [resin.io](https://resin.io).
+A basic example of running [influxdb](https://influxdata.com/time-series-platform/influxdb/) via [resin.io](https://resin.io).
 
 All it does, is write load averages via Python -script to the database.
 This database can then be queried via the built-in webinterface, at `http://<resin-ip>:8083`
