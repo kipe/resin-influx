@@ -5,4 +5,4 @@ mkdir /data/influxdb
 chown influxdb:influxdb /data/influxdb
 
 # Run the application with supervisor
-supervisord -n -c /etc/supervisor/supervisord.conf
+supervisord -n -c /usr/local/etc/supervisord.conf

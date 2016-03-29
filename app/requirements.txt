@@ -1,1 +1,2 @@
 influxdb==2.12.0
+supervisor==3.2.3
