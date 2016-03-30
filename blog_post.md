@@ -160,3 +160,10 @@ performance stays linear, I could fetch hourly averages for a month in under
 500 milliseconds even on a first generation Raspberry Pi. This is on par with
 my current logging solutions, but a lot easier to manage and to create different
 averages for different uses.
+
+My main reason for saving the data to the device instead of the cloud is that
+I all the functionality of my applications even when offline. Typically the
+devices I develop and use are used in remote locations, where 3G / 4G coverage
+may be unreliable. To be sure of the correct functionality, I want the data
+logged constantly. This would require some sort of logging on the device anyways,
+so why not store all the data on the device...
