@@ -11,8 +11,8 @@ to deploy as there isn't much to install and setup. Just compile the sources or
 use the provided packages.
 
 With version 0.11 InfluxDB started to provide official packages for `armhf`,
-which makes it possible to run the database on many embedded linux boards.
-This of course makes one wonder if it's possible to run it on Raspberry Pi, and
+which makes it possible to run the database on many embedded Linux boards.
+This, of course, makes one wonder if it's possible to run it on Raspberry Pi, and
 especially through resin.io...
 
 
@@ -20,7 +20,7 @@ especially through resin.io...
 ## Why InfluxDB? ##
 
 The issue with running databases on embedded hardware is most commonly the
-performance, especially when handling large amounts of data. In the past I've
+performance, especially when handling large amounts of data. In the past, I've
 used anything from [PostgreSQL](http://www.postgresql.org) to
 [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) files to save measurement data.
 This is however quite problematic when logging for long periods of time
@@ -28,34 +28,34 @@ This is however quite problematic when logging for long periods of time
 Typically values are logged once per minute from multiple sources.
 
 The main issue is not saving the data but getting the data out in a usable form.
-With CSV files I've done various custom solutions, including averaging the data
+With CSV files, I've done various custom solutions, including averaging the data
 from one file to a new one, just to get the amount of data to a more reasonable level.
 
 With SQL, the issue typically is that it's fairly slow and averaging the data
 to a more reasonable amount is quite difficult. I've even used different tables
-for different time ranges, with montly data averaged to one hour et cetera. After
-this I've removed the time range from the original data.
+for different time ranges, with monthly data averaged to one hour et cetera. After
+this, I've removed the time range from the original data.
 
 My main goal with InfluxDB is to have the database doing the averaging for me,
 without the need for removing any of the original data. From my previous experiences
-InfluxDB seems to have a very well optimized algorithms and a fairly simple query language.
+InfluxDB seems to have very well optimized algorithms and a fairly simple query language.
 
 
 
 ## Setting up ##
 
-Setting up the Docker image was fairly straight forward, in essence the
+Setting up the Docker image was fairly straightforward, in essence, the
 Dockerfile is just fetching the ready-made packages for `armhf`, installing, and
 configuring them. The only change I made to the configuration was to move all
-storage to the `/data` partition, to preserve it between boots.
+storage to the `/data` partition, to [preserve it between boots](http://docs.resin.io/#/pages/runtime/runtime.md#persistent-storage).
 
 The project uses the Python-image as a base, as the measurement script is
 written in Python. Luckily InfluxDB also has [Python-library](https://github.com/influxdata/influxdb-python)
-available, making the logging fairly straightforward. It should however be
+available, making the logging fairly straightforward. It should however, be
 noted, that the Python-library doesn't seem to officially support 0.11 yet...
 
 The measurement script reads 9 values from the board. The values are read ~once
-per second, and written to the database. The values are
+per second and written to the database. The values are
   - load averages: 1, 5 and 15 minutes
   - memory: total, available, and percentage used
   - disk usage for `/data`: total, used, and free
@@ -65,13 +65,13 @@ to start them and most important of all, keep them running. At first, the
 `systemd` -script included in the InfluxDB package was used, which proved problematic.
 
 The main issue was that the database was moved to `/data`, which of course the
-`influxdb` user doesn't have rights to, at least when specifially defining them.
+`influxdb` user doesn't have rights to, at least when specifically defining them.
 The rights were given in the `start.sh`, but this was run after the database was
 started, leading to errors. I couldn't bother messing with it and moved on to
 [supervisord](http://supervisord.org) instead, as I've used it in the past with
 great success...
 
-After the supervisor -configurations were setup, everything worked flawlessly.
+After the supervisor configurations were setup, everything worked flawlessly.
 The monitoring script does fail a couple of times before the database has started.
 Other than that, everything just worked.
 
@@ -82,7 +82,7 @@ Other than that, everything just worked.
 As noted before, the issue is not saving the data but getting the data out. For
 testing this a small Python-script was developed which fetches different amounts
 of data, averaging it to different time periods. These tests were run after a
-sufficient amount of data was collected, meaning ~3 million measurements.
+sufficient amount of data was collected, roughly 3 million measurements.
 
 The tests were run on two different boards, [Raspberry Pi 1 Model B+](https://www.raspberrypi.org/products/model-b-plus/)
 and [ODROID-C1](http://www.hardkernel.com/main/products/prdt_info.php?g_code=G141578608433),
@@ -132,7 +132,7 @@ The average times (in milliseconds) for fetching load averages from ODROID-C1:
 
 Overall the performance is fairly good even on the Raspberry Pi. With ODROID it's
 exceptional! The ODROID performs the queries in ~10-30 percent of the time used
-by the Raspberry Pi. Furthermore the times are more constant on the ODROID,
+by the Raspberry Pi. Furthermore, the times are more constant on the ODROID,
 which might be because of the multi-core processor. With multiple cores,
 different background tasks don't slow down the processing that much, leading
 to a more consistent experience.
@@ -143,10 +143,10 @@ Sometimes the times were double compared to the results of one query, sometimes
 4 times longer et cetera. So if you're looking for consistency, the best bet is
 to run the queries one by one, at least for now.
 
-The memory usage of the database daemon seems to stay within a reasonable limits,
+The memory usage of the database daemon seems to stay within reasonable limits,
 leaving enough headroom for the user application. The CPU usage also stays under
 control, with the daemon taking ~1-4 percent of a single core when idling.
-I didn't check the CPU loads when feching the data, but it's safe to assume that
+I didn't check the CPU loads when fetching the data, but it's safe to assume that
 it's 100 % of at least one core is used...
 
 
@@ -162,7 +162,7 @@ my current logging solutions, but a lot easier to manage and to create different
 averages for different uses.
 
 My main reason for saving the data to the device instead of the cloud is that
-I all the functionality of my applications even when offline. Typically the
+I want all the functionality of my applications even when offline. Typically the
 devices I develop and use are used in remote locations, where 3G / 4G coverage
 may be unreliable. To be sure of the correct functionality, I want the data
 logged constantly. This would require some sort of logging on the device anyways,
