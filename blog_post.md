@@ -1,5 +1,11 @@
 # InfluxDB on resin.io #
 
+> Kimmo Huoman is an electronic engineering student and employee of
+> [Lappeenranta University of Technology](http://www.lut.fi/web/en/).
+> His main interest is home automation and embedded Linux systems in general.
+
+
+
 ## What is InfluxDB? ##
 
 In short, [InfluxDB](https://influxdata.com/time-series-platform/influxdb/) is
@@ -39,6 +45,19 @@ this, I've removed the time range from the original data.
 My main goal with InfluxDB is to have the database doing the averaging for me,
 without the need for removing any of the original data. From my previous experiences
 InfluxDB seems to have very well optimized algorithms and a fairly simple query language.
+
+One might wonder why I bother saving the data on the device in the first place?
+The main reason for saving the data to the device instead of the cloud is that
+I want all the functionality of my applications even when offline. Typically the
+devices I develop and use are used in remote locations, where 3G / 4G coverage
+may be unreliable. To be sure of the correct functionality, I want the data
+logged constantly. This would require some sort of logging on the device anyways,
+so why not store all the data on the device...
+
+Another reason is also partly related to the 3G connectivity. My main use-case
+is home automation, and this of course means that the system is also (mainly)
+used in the internal network. Fetching the data from a remote server would be
+slow, and sometimes impossible.
 
 
 
@@ -94,40 +113,45 @@ and restored once the other board was provisioned. To minimise the random
 effects, the tests were run four times on both boards. Both boards also used
 the same WiFi -dongle for connectivity, as the test-script was run on my laptop.
 
+To get an idea of the performance, the stored values were fetched using four
+different time ranges: 2, 6, 12, and 24 hours. A single measurement contains
+~3600 measurements per hour. My main interest isn't in the raw values though.
+Instead, I'm more interested in fetching mean values, especially when
+considering longer periods of time.
 
-The number of points fetched in each test is as follows (double for "multiple" test):
+The main test is aggregating the mean values from the raw values. In order
+to achieve that, averages for 1 minute and 1 hour were calculated from the raw
+measurement points. Again, multiple aggregation functions are included in the
+[InfluxDB query language](https://docs.influxdata.com/influxdb/v0.11/query_language/functions/).
+The function used in the test is `MEAN`, but from my experience all the
+functions seem to have quite similar performance.
 
-| Range length | Raw    | 1m average | 1h average |
-|--------------|--------|------------|------------|
-| 2 hours      | ~7200  | 120        | 2          |
-| 6 hours      | ~21600 | 360        | 6          |
-| 12 hours     | ~43200 | 720        | 12         |
-| 24 hours     | ~86400 | 1440       | 24         |
-
-It should be noted, that the database has to handle all the raw points also when
-running the averaged tests, as the averages are calculated from the raw points.
-Therefore the numbers presented in the table correspond to the number of points
-in the result.
-
-
-The average times (in milliseconds) for fetching load averages from RPi B+:
-
-| Range length | Raw    | 1m average | 1h average |
-|--------------|--------|------------|------------|
-| 2 hours      | 3676   | 161        | 98         |
-| 6 hours      | 9630   | 662        | 175        |
-| 12 hours     | 20073  | 679        | 362        |
-| 24 hours     | 30674  | 1120       | 1145       |
+The first two columns in the following tables show the fetched *time range* and
+the *number of raw points* in that time range. The three remaining columns
+represent the *execution time* of the query in milliseconds. The times were
+logged for fetching the raw points, 1 minute mean values, and 1 hour
+mean values. So with 1 minute mean, there's 60 values per hour.
 
 
-The average times (in milliseconds) for fetching load averages from ODROID-C1:
+*The mean times (in milliseconds) for fetching load averages from RPi B+:*
 
-| Range length | Raw    | 1m average | 1h average |
-|--------------|--------|------------|------------|
-| 2 hours      | 843    | 57         | 40         |
-| 6 hours      | 1804   | 91         | 48         |
-| 12 hours     | 3760   | 239        | 87         |
-| 24 hours     | 6025   | 339        | 124        |
+| Time range   | Number of raw points | Raw [ms]    | 1m mean [ms]    | 1h mean [ms]    |
+|--------------|----------------------|-------------|-----------------|-----------------|
+| 2 hours      | ~7200                | 3676        | 161             | 98              |
+| 6 hours      | ~21600               | 9630        | 662             | 175             |
+| 12 hours     | ~43200               | 20073       | 679             | 362             |
+| 24 hours     | ~86400               | 30674       | 1120            | 1145            |
+
+
+
+*The mean times (in milliseconds) for fetching load averages from ODROID-C1:*
+
+| Time range   | Number of raw points | Raw [ms]    | 1m mean [ms]    | 1h mean [ms]    |
+|--------------|----------------------|-------------|-----------------|-----------------|
+| 2 hours      | ~7200                | 843         | 57              | 40              |
+| 6 hours      | ~21600               | 1804        | 91              | 48              |
+| 12 hours     | ~43200               | 3760        | 239             | 87              |
+| 24 hours     | ~86400               | 6025        | 339             | 124             |
 
 
 Overall the performance is fairly good even on the Raspberry Pi. With ODROID it's
@@ -155,15 +179,19 @@ it's 100 % of at least one core is used...
 
 Overall I'm more than satisfied with the performance. The number of points was
 fairly extreme, at least for my usecases. Typically I use a logging interval of
-60 - 120 seconds, so the number of points is reduced by quite a lot. If the
-performance stays linear, I could fetch hourly averages for a month in under
-500 milliseconds even on a first generation Raspberry Pi. This is on par with
-my current logging solutions, but a lot easier to manage and to create different
-averages for different uses.
+60 - 120 seconds, so the number of points is reduced by quite a lot.
 
-My main reason for saving the data to the device instead of the cloud is that
-I want all the functionality of my applications even when offline. Typically the
-devices I develop and use are used in remote locations, where 3G / 4G coverage
-may be unreliable. To be sure of the correct functionality, I want the data
-logged constantly. This would require some sort of logging on the device anyways,
-so why not store all the data on the device...
+This performance testing lead to converting my existing home automation system
+to run on InfluxDB. After I managed to import my old CSV log files to InfluxDB,
+there's 35 different series of measurements in the database. This adds up to
+around 10 million measurement points.
+
+With InfluxDB, I can fetch the values of each sensor for any given time range,
+average them and get the results in a reasonable format with a single query:
+
+`SELECT MEAN(value) FROM sensor WHERE time > '2016-03-01' AND time < '2016-03-02' GROUP BY time(5m), id`
+
+In the current system, this query takes about 700 milliseconds. Best of all,
+the result is JSON. This means I can just pass these results directly to the
+web-based user interface without any processing on the Raspberry Pi.
+This of course reduces the load on the Pi dramatically.
