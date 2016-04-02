@@ -191,7 +191,7 @@ average them and get the results in a reasonable format with a single query:
 
 `SELECT MEAN(value) FROM sensor WHERE time > '2016-03-01' AND time < '2016-03-02' GROUP BY time(5m), id`
 
-In the current system, this query takes about 700 milliseconds. Best of all,
+In the current system, this query takes about 300 milliseconds. Best of all,
 the result is JSON. This means I can just pass these results directly to the
 web-based user interface without any processing on the Raspberry Pi.
 This of course reduces the load on the Pi dramatically.
