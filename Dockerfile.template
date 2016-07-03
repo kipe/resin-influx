@@ -6,7 +6,8 @@ RUN wget -O /tmp/influxdb.deb https://dl.influxdata.com/influxdb/releases/influx
     dpkg -i /tmp/influxdb.deb && rm /tmp/influxdb.deb
 
 # Add app
-ADD /app /app
+RUN mkdir -p /usr/src/app
+ADD /app /usr/src/app
 # Install the app requirements
 RUN pip install -r /app/requirements.txt
 
@@ -19,4 +20,4 @@ RUN echo_supervisord_conf > /usr/local/etc/supervisord.conf && \
     echo "files = /app/supervisor/*.conf" >> /usr/local/etc/supervisord.conf
 
 # Finally, start our app
-CMD ["bash", "/app/start.sh"]
+CMD ["bash", "/usr/src/app/start.sh"]
