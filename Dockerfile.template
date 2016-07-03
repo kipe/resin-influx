@@ -2,8 +2,8 @@ FROM resin/%%RESIN_MACHINE_NAME%%-python
 MAINTAINER Kimmo Huoman <kipenroskaposti@gmail.com>
 
 # Install influxdb
-RUN wget -O /tmp/influxdb_0.11.0-1_armhf.deb https://s3.amazonaws.com/influxdb/influxdb_0.11.0-1_armhf.deb && \
-    dpkg -i /tmp/influxdb_0.11.0-1_armhf.deb && rm /tmp/influxdb_0.11.0-1_armhf.deb
+RUN wget -O /tmp/influxdb.deb https://dl.influxdata.com/influxdb/releases/influxdb_0.13.0_armhf.deb && \
+    dpkg -i /tmp/influxdb.deb && rm /tmp/influxdb.deb
 
 # Add app
 ADD /app /app
